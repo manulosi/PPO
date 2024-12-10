@@ -11,7 +11,7 @@
             padding: 0;
             height: 100%;
             width: 100%;
-            overflow: auto; /* Permite rolar a página */
+            overflow: auto;
         }
         .navbar {
             background-color: #000;
@@ -23,7 +23,6 @@
         .navbar-brand, .navbar-nav .nav-link {
             color: #fff;
             margin-left: 60px;
-            
         }
         .navbar-nav .nav-link:hover {
             color: #d3d3d3;
@@ -41,7 +40,7 @@
             padding: 20px;
             max-width: 600px;
             width: 100%;
-            margin: 70px auto 20px; /* Ajuste superior para evitar sobreposição com a navbar */
+            margin: 70px auto 20px;
         }
         .header {
             margin-bottom: 20px;
@@ -71,11 +70,11 @@
             background-color: #555;
         }
         #map {
-            height: 80vh; /* Ajustado para ocupar uma altura significativa da tela */
+            height: 80vh;
             width: 100%;
-            max-width: 1000px; /* Largura máxima do mapa */
-            border: 2px solid #ddd; /* Adiciona uma borda ao redor do mapa */
-            margin: 20px auto; /* Centraliza o mapa horizontalmente */
+            max-width: 1000px;
+            border: 2px solid #ddd;
+            margin: 20px auto;
         }
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -89,7 +88,7 @@
         label {
             cursor: pointer;
             position: absolute;
-            left: 10px; /* Ajuste conforme necessário */
+            left: 10px;
             top: 50%;
             transform: translateY(-50%);
             height: 22px;
@@ -170,8 +169,7 @@
     </label>
     <a class="navbar-brand" href="paginaprincipal.php">SmartBus</a>
     <div class="menu">
-    
-    <ul>
+        <ul>
             <li><a href="paginaprincipal.php">Início</a></li>
             <li><a href="linhas.php">Horários e linhas disponíveis</a></li>
             <li><a href="prox.php">Pontos de ônibus</a></li>
@@ -194,11 +192,8 @@
 
         <input type="submit" value="Ver Rota de Ônibus">
         <div id="resultado" style="margin-top: 20px;"></div>
-
     </form>
 </div>
-
-
 
 <div id="map"></div>
 
@@ -212,14 +207,14 @@
     let geocoder;
     let stepIndex = 0;
     let steps = [];
-    const speed = 200; // Velocidade do ônibus em km/h
+    const speed = 30; // Velocidade do ônibus em km/h
 
     function initMap() {
         map = new google.maps.Map(document.getElementById('map'), {
             center: { lat: -27.2176, lng: -49.6456 },
             zoom: 14,
-            scrollwheel: true, // Permite rolar com o scroll do mouse
-            gestureHandling: 'greedy' // Permite rolar e mover o mapa
+            scrollwheel: true,
+            gestureHandling: 'greedy'
         });
 
         busMarker = new google.maps.Marker({
@@ -266,104 +261,109 @@
     }
 
     function calculateRoute(start, end) {
-    directionsService.route({
-        origin: start,
-        destination: end,
-        travelMode: google.maps.TravelMode.DRIVING,
-        provideRouteAlternatives: false
-    }, function(response, status) {
-        if (status === google.maps.DirectionsStatus.OK) {
-            directionsRenderer.setDirections(response);
-            const routeLegs = response.routes[0].legs[0];
-            const distanceInKm = routeLegs.distance.value / 1000; // Convertendo de metros para quilômetros
-            const estimatedTime = distanceInKm / 50; // Tempo em horas (considerando velocidade de 50 km/h)
-            const estimatedTimeInMinutes = estimatedTime * 60; // Tempo em minutos
+        directionsService.route({
+            origin: start,
+            destination: end,
+            travelMode: google.maps.TravelMode.DRIVING,
+            provideRouteAlternatives: false
+        }, function(response, status) {
+            if (status === google.maps.DirectionsStatus.OK) {
+                directionsRenderer.setDirections(response);
+                const routeLegs = response.routes[0].legs[0];
+                const distanceInKm = routeLegs.distance.value / 1000; // Convertendo de metros para quilômetros
 
-            steps = routeLegs.steps;
-            stepIndex = 0;
-            moveBus(() => {
-                // Após a animação do destino final, mova para o terminal urbano
-                moveBusToTerminal();
-            });
-        } else {
-            document.getElementById('resultado').innerHTML = '<p>Não foi possível encontrar uma rota. Tente novamente.</p>';
-        }
-    });
-}
+                // Calculando o tempo estimado com a velocidade do ônibus
+                const estimatedTime = distanceInKm / speed; // Tempo em horas
+                const estimatedTimeInMinutes = estimatedTime * 60; // Tempo em minutos
 
-function moveBus(callback) {
-    if (stepIndex < steps.length) {
-        const step = steps[stepIndex];
-        const stepLocation = step.start_location;
+                // Exibindo a distância e o tempo estimado
+                document.getElementById('resultado').innerHTML = `
+                    <p>Distância: ${distanceInKm.toFixed(2)} km</p>
+                    <p>Tempo estimado de viagem: ${estimatedTimeInMinutes.toFixed(0)} minutos</p>
+                `;
 
-        busMarker.setPosition(stepLocation);
-        map.setCenter(stepLocation);
+                steps = routeLegs.steps;
+                stepIndex = 0;
+                moveBus(() => {
+                    moveBusToTerminal();
+                });
+            } else {
+                document.getElementById('resultado').innerHTML = '<p>Não foi possível encontrar uma rota. Tente novamente.</p>';
+            }
+        });
+    }
 
-        const stepDuration = step.duration.value / 60; // Tempo total do passo em minutos
-        const stepInterval = (stepDuration / (speed / 60)) * 1000; // Intervalo de atualização baseado na velocidade do ônibus
+    function moveBus(callback) {
+        if (stepIndex < steps.length) {
+            const step = steps[stepIndex];
+            const stepLocation = step.start_location;
 
-        const stepDistance = google.maps.geometry.spherical.computeDistanceBetween(
-            step.start_location, step.end_location
-        );
+            busMarker.setPosition(stepLocation);
+            map.setCenter(stepLocation);
 
-        const stepAnimationDuration = stepDistance / (speed * 1000 / 3600) * 1000; // Tempo total da animação em milissegundos
+            const stepDuration = step.duration.value / 60; // Tempo total do passo em minutos
+            const stepInterval = (stepDuration / (speed / 60)) * 1000; // Intervalo de atualização baseado na velocidade do ônibus
 
-        let animationStart = Date.now();
-
-        function animate() {
-            const elapsed = Date.now() - animationStart;
-            const progress = Math.min(elapsed / stepAnimationDuration, 1);
-            const newLatLng = google.maps.geometry.spherical.interpolate(
-                step.start_location, step.end_location, progress
+            const stepDistance = google.maps.geometry.spherical.computeDistanceBetween(
+                step.start_location, step.end_location
             );
 
-            busMarker.setPosition(newLatLng);
-            map.setCenter(newLatLng);
+            const stepAnimationDuration = stepDistance / (speed * 1000 / 3600) * 1000;
 
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            } else {
-                stepIndex++;
-                if (stepIndex < steps.length) {
-                    moveBus(callback);
+            let animationStart = Date.now();
+
+            function animate() {
+                const elapsed = Date.now() - animationStart;
+                const progress = Math.min(elapsed / stepAnimationDuration, 1);
+                const newLatLng = google.maps.geometry.spherical.interpolate(
+                    step.start_location, step.end_location, progress
+                );
+
+                busMarker.setPosition(newLatLng);
+                map.setCenter(newLatLng);
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
                 } else {
-                    callback(); // Quando terminar a rota, chama a função de movimento para o terminal
+                    stepIndex++;
+                    if (stepIndex < steps.length) {
+                        moveBus(callback);
+                    } else {
+                        callback();
+                    }
                 }
             }
-        }
 
-        animate();
+            animate();
+        }
     }
-}
 
-function moveBusToTerminal() {
-    // Localização do terminal urbano (exemplo: Rio do Sul)
-    const terminalLatLng = new google.maps.LatLng(-27.2100, -49.6500); // Substitua pelas coordenadas reais
+    function moveBusToTerminal() {
+        const terminalLatLng = new google.maps.LatLng(-27.2100, -49.6500);
 
-    const directionsServiceToTerminal = new google.maps.DirectionsService();
-    const directionsRendererToTerminal = new google.maps.DirectionsRenderer({ map: map });
+        const directionsServiceToTerminal = new google.maps.DirectionsService();
+        const directionsRendererToTerminal = new google.maps.DirectionsRenderer({ map: map });
 
-    directionsServiceToTerminal.route({
-        origin: busMarker.getPosition(),
-        destination: terminalLatLng,
-        travelMode: google.maps.TravelMode.DRIVING,
-        provideRouteAlternatives: false
-    }, function(response, status) {
-        if (status === google.maps.DirectionsStatus.OK) {
-            directionsRendererToTerminal.setDirections(response);
-            const routeLegs = response.routes[0].legs[0];
-            const stepsToTerminal = routeLegs.steps;
-            stepIndex = 0;
-            steps = stepsToTerminal;
-            moveBus(() => {
-                console.log("Ônibus chegou no terminal!");
-            });
-        } else {
-            alert("Não foi possível calcular a rota para o terminal.");
-        }
-    });
-}
-
+        directionsServiceToTerminal.route({
+            origin: busMarker.getPosition(),
+            destination: terminalLatLng,
+            travelMode: google.maps.TravelMode.DRIVING,
+            provideRouteAlternatives: false
+        }, function(response, status) {
+            if (status === google.maps.DirectionsStatus.OK) {
+                directionsRendererToTerminal.setDirections(response);
+                const routeLegs = response.routes[0].legs[0];
+                const stepsToTerminal = routeLegs.steps;
+                stepIndex = 0;
+                steps = stepsToTerminal;
+                moveBus(() => {
+                    console.log("Ônibus chegou no terminal!");
+                });
+            } else {
+                alert("Não foi possível calcular a rota para o terminal.");
+            }
+        });
+    }
 </script>
 
 </body>

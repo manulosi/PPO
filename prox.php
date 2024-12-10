@@ -1043,6 +1043,7 @@
         const userLocation = {
             lat: position.coords.latitude,
             lng: position.coords.longitude
+           
         };
 
         if (userMarker) {
@@ -1169,3 +1170,4 @@
 </script>
 </body>
 </html>
+Position
