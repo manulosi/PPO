@@ -27,9 +27,11 @@
             background-position: center;
             color: #fff;
             text-align: center;
-            padding: 100px 0;
+            padding: 120px 0;
             position: relative;
             box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.5); /* Escurece a imagem de fundo */
+           
+        
         }
         .hero h1 {
             font-size: 3.5rem;
@@ -165,13 +167,12 @@
         <img src="img/logo.jpg" alt="SmartBus Logo">
     SmartBus</a>
     <div class="menu">
-        <ul>
+    <ul>
             <li><a href="paginaprincipal.php">Início</a></li>
-            <li><a href="teste.php">Formulário</a></li>
-            <li><a href="local.php">Lista de Pontos</a></li>
-           
-            <li><a href="linhas.php">Linhas</a></li>
-            <li><a href="mapas.php">Rota</a></li>
+            <li><a href="linhas.php">Horários e linhas disponíveis</a></li>
+            <li><a href="prox.php">Pontos de ônibus</a></li>
+            <li><a href="lista.php">Busca rota online</a></li>
+            <li><a href="motorista.php">Motorista</a></li>
         </ul>
     </div>
 </nav>
@@ -179,8 +180,7 @@
 <div class="hero">
     <div class="container">
         <h1>Bem-vindo ao SmartBus</h1>
-        <p>O SmartBus é um sistema inovador que fornece informações em tempo real sobre o transporte público.</p>
-        <a href="teste.php" class="btn btn-primary">Formulario</a>
+        
     </div>
 </div>
 

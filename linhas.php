@@ -171,13 +171,12 @@
     </label>
     <a class="navbar-brand" href="paginaprincipal.php">SmartBus</a>
     <div class="menu">
-        <ul>
+    <ul>
             <li><a href="paginaprincipal.php">Início</a></li>
-            <li><a href="teste.php">Formulário</a></li>
-            <li><a href="local.php">Lista de pontos</a></li>
-            
-            <li><a href="linhas.php">Linhas</a></li>
-            <li><a href="mapas.php">Rota</a></li>
+            <li><a href="linhas.php">Horários e linhas disponíveis</a></li>
+            <li><a href="prox.php">Pontos de ônibus</a></li>
+            <li><a href="lista.php">Busca rota online</a></li>
+            <li><a href="motorista.php">Motorista</a></li>
         </ul>
     </div>
 </nav>
