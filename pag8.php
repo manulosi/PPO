@@ -220,7 +220,7 @@ $localDestino = isset($_GET['localDestino']) ? $_GET['localDestino'] : 'Destino 
 
     <h3>Destino: <?php echo htmlspecialchars($localDestino); ?></h3>
 
-    <h4 class="mt-4">Ruas, Pontos Próximos e Tempo Estimado:</h4>
+   
     <table class="table table-bordered">
         <thead class="thead-dark">
             <tr>

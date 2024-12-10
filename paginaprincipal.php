@@ -27,7 +27,7 @@
             background-position: center;
             color: #fff;
             text-align: center;
-            padding: 120px 0;
+            padding: 100px 0;
             position: relative;
             box-shadow: inset 0 0 0 2000px rgba(0, 0, 0, 0.5); /* Escurece a imagem de fundo */
         }
